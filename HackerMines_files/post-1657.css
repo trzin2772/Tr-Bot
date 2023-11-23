@@ -1,0 +1,36 @@
+.elementor-1657 .elementor-element.elementor-element-91805d6 {
+    --display: flex;
+    --background-transition: 0.3s;
+}
+
+.elementor-1657 .elementor-element.elementor-element-7958760 {
+    --display: flex;
+    --background-transition: 0.3s;
+}
+
+:root {
+    --page-title-display: none;
+}
+
+body.elementor-page-1657 {
+    margin: 22px 22px 22px 22px;
+}
+
+body.elementor-page-1657:not(.elementor-motion-effects-element-type-background),
+body.elementor-page-1657>.elementor-motion-effects-container>.elementor-motion-effects-layer {
+    background-image: url("/HackerMines_files/FundoPagina.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+@media(max-width:767px) {
+    .elementor-1657 .elementor-element.elementor-element-91805d6 {
+        --content-width: 500px;
+    }
+
+    body.elementor-page-1657:not(.elementor-motion-effects-element-type-background),
+    body.elementor-page-1657>.elementor-motion-effects-container>.elementor-motion-effects-layer {
+        background-size: cover;
+    }
+}

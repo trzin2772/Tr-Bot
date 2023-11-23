@@ -1,0 +1,356 @@
+(async function (currentScript) {
+  const DEFER_TO_LOAD = 100;
+  const DEFER_TO_LOAD_RETRY = 1000;
+  window.cactusEvents = window.cactusEvents || [];
+  const loadedEvents = {};
+  if(window.cactusEvents){
+    window.cactusEvents._push = window.cactusEvents.push;
+    window.cactusEvents.push = function(data){
+      if(loadedEvents[data[0]]){
+        try{
+          data[1]&&data[1]();
+        }catch(ex){
+          console.log('err custom event cactus push',ex);
+        }
+        return;
+      }
+      this._push.apply(this,arguments);
+    }
+  }
+  function execCactusEvents(eventName){
+    return function(){
+      loadedEvents[eventName] = true;
+      if(window.cactusEvents){
+        window.cactusEvents.forEach(function (data, index) {
+          if(!Array.isArray(data)){
+            return;
+          }
+          const event = data[0];
+          if(event === 'push' || event === '_push'){
+            return;
+          }
+          if(!Array.isArray(window.cactusEvents[index])){
+            return;
+          }
+          if(window.cactusEvents[index][2] === 'loaded'){
+            return;
+          }
+          if(event === eventName){
+            window.cactusEvents[index][2] = 'loaded';
+            try{
+              window.cactusEvents[index][1]&&window.cactusEvents[index][1]();
+              window.cactusEvents[index][1] = null;
+            }catch(ex){
+              console.log('err custom event cactus',ex);
+            }
+          }
+        });
+      }
+    }
+  }
+  let started = false;
+  function start(){
+      if(started){
+        return;
+      }
+      started = true;
+      setTimeout(function(){
+        let app = currentScript.getAttribute('data-app');
+        let digitain = currentScript.getAttribute('data-digitain');
+
+
+        // setTimeout(function () {
+        //   // facebook
+        //   !function (f, b, e, v, n, t, s) {
+        //     if (f.fbq) return;
+        //     n = f.fbq = function () {
+        //       n.callMethod ?
+        //         n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+        //     };
+        //     if (!f._fbq) f._fbq = n;
+        //     n.push = n;
+        //     n.loaded = !0;
+        //     n.version = '2.0';
+        //     n.queue = [];
+        //     t = b.createElement(e);
+        //     t.async = !0;
+        //     t.src = v;
+        //     t.onload = execCactusEvents('facebook');
+        //     s = b.getElementsByTagName(e)[0];
+        //     s.parentNode.insertBefore(t, s)
+        //   }(window, document, 'script',
+        //     'https://connect.facebook.net/en_US/fbevents.js');
+        // }, DEFER_TO_LOAD);
+
+        // kwai
+        // setTimeout(function () {
+        //   !function (e, t) {
+        //     "object" == typeof exports && "object" == typeof module ? module.exports = t() : "function" == typeof define && define.amd ? define([], t) : "object" == typeof exports ? exports.install = t() : e.install = t()
+        //   }(window, (function () {
+        //     return function (e) {
+        //       var t = {};
+
+        //       function n(r) {
+        //         if (t[r]) return t[r].exports;
+        //         var o = t[r] = {i: r, l: !1, exports: {}};
+        //         return e[r].call(o.exports, o, o.exports, n), o.l = !0, o.exports
+        //       }
+
+        //       return n.m = e, n.c = t, n.d = function (e, t, r) {
+        //         n.o(e, t) || Object.defineProperty(e, t, {enumerable: !0, get: r})
+        //       }, n.r = function (e) {
+        //         "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(e, Symbol.toStringTag, {value: "Module"}), Object.defineProperty(e, "__esModule", {value: !0})
+        //       }, n.t = function (e, t) {
+        //         if (1 & t && (e = n(e)), 8 & t) return e;
+        //         if (4 & t && "object" == typeof e && e && e.__esModule) return e;
+        //         var r = Object.create(null);
+        //         if (n.r(r), Object.defineProperty(r, "default", {
+        //           enumerable: !0,
+        //           value: e
+        //         }), 2 & t && "string" != typeof e) for (var o in e) n.d(r, o, function (t) {
+        //           return e[t]
+        //         }.bind(null, o));
+        //         return r
+        //       }, n.n = function (e) {
+        //         var t = e && e.__esModule ? function () {
+        //           return e.default
+        //         } : function () {
+        //           return e
+        //         };
+        //         return n.d(t, "a", t), t
+        //       }, n.o = function (e, t) {
+        //         return Object.prototype.hasOwnProperty.call(e, t)
+        //       }, n.p = "", n(n.s = 0)
+        //     }([function (e, t, n) {
+        //       "use strict";
+        //       var r = this && this.__spreadArray || function (e, t, n) {
+        //         if (n || 2 === arguments.length) for (var r, o = 0, i = t.length; o < i; o++) !r && o in t || (r || (r = Array.prototype.slice.call(t, 0, o)), r[o] = t[o]);
+        //         return e.concat(r || Array.prototype.slice.call(t))
+        //       };
+        //       !function (e) {
+        //         var t = window;
+        //         t.KwaiAnalyticsObject = e, t[e] = t[e] || [];
+        //         var n = t[e];
+        //         n.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"];
+        //         var o = function (e, t) {
+        //           e[t] = function () {
+        //             var n = Array.from(arguments), o = r([t], n, !0);
+        //             e.push(o)
+        //           }
+        //         };
+        //         n.methods.forEach((function (e) {
+        //           o(n, e)
+        //         })), n.instance = function (e) {
+        //           var t = n._i[e] || [];
+        //           return n.methods.forEach((function (e) {
+        //             o(t, e)
+        //           })), t
+        //         }, n.load = function (t, r) {
+        //           n._i = n._i || {}, n._i[t] = [], n._i[t]._u = "https://s1.kwai.net/kos/s101/nlav11187/pixel/events.js", n._t = n._t || {}, n._t[t] = +new Date, n._o = n._o || {}, n._o[t] = r || {};
+        //           var o = document.createElement("script");
+        //           o.type = "text/javascript", o.async = !0, o.src = "https://s1.kwai.net/kos/s101/nlav11187/pixel/events.js?sdkid=" + t + "&lib=" + e;
+        //           o.onload = execCactusEvents('kwai');
+        //           var i = document.getElementsByTagName("script")[0];
+        //           i.parentNode.insertBefore(o, i)
+        //         }
+        //       }("kwaiq")
+        //     }])
+        //   }));
+        // }, DEFER_TO_LOAD);
+
+        // taboola
+        // setTimeout(function () {
+        //   if (app === 'Bet7k') {
+        //     window._tfa = window._tfa || [];
+        //     window._tfa.push({notify: "event", name: "page_view", id: 1509742});
+        //     !(function (t, f, a, x) {
+        //       if (!document.getElementById(x)) {
+        //         t.async = 1;
+        //         t.defer = true;
+        //         t.src = a;
+        //         t.id = x;
+        //         t.onload = execCactusEvents('taboola');
+        //         f.parentNode.insertBefore(t, f);
+        //       }
+        //     })(
+        //       document.createElement("script"),
+        //       document.getElementsByTagName("script")[0],
+        //       "//cdn.taboola.com/libtrc/unip/1509742/tfa.js",
+        //       "tb_tfa_script"
+        //     );
+        //   }
+        // }, DEFER_TO_LOAD);
+
+        // smartico
+        setTimeout(function () {
+          const brandKeys = [
+            { casa: 'bet7k',        key: '715dd9e9', label: '27b3c09c-40e7-4d7c-882d-7b24850e0b69-3'},
+            { casa: 'cassinopix',   key: '0a13ef04', label: '27b3c09c-40e7-4d7c-882d-7b24850e0b69-3'},
+            { casa: 'brxbet',       key: 'b9a115f0', label: '27b3c09c-40e7-4d7c-882d-7b24850e0b69-3'},
+            { casa: 'apostaonline', key: '1d603677', label: '8a0029a5-d340-4b13-8567-76e4d3de1ec9-3'}
+          ]
+          const smarticoData = brandKeys.find(nm => nm.casa === app.toLowerCase())
+          if(smarticoData) {
+            !(function (t, f, a, x) {
+              if (!document.getElementById(x)) {
+                t.async = 1;
+                t.defer = true;
+                t.src = a;
+                t.id = x;
+                t.onload = function () {
+                  execCactusEvents('smartico');
+                  _smartico.init(smarticoData.label, { brand_key: smarticoData.key });
+                };
+                f.parentNode.insertBefore(t, f);
+              }
+            })(
+              document.createElement("script"),
+              document.getElementsByTagName("script")[0],
+              "https://libs.smartico.ai/smartico.js",
+              "smartico_script"
+            );
+          }
+        }, DEFER_TO_LOAD);
+
+        // pragmatic
+        setTimeout(function () {
+          !(function (t, f, a, x) {
+            if (!document.getElementById(x)) {
+              t.async = 1;
+              t.defer = true;
+              t.src = a;
+              t.id = x;
+              t.onload = execCactusEvents('pragmatic');
+              f.parentNode.insertBefore(t, f);
+            }
+          })(
+            document.createElement("script"),
+            document.getElementsByTagName("script")[0],
+            "https://dga.pragmaticplaylive.net/dgaAPI.js",
+            "pragmaticplaylive_script"
+          );
+        }, DEFER_TO_LOAD);
+
+        // digitain
+        setTimeout(function () {
+          !(function (t, f, a, x) {
+            if (!document.getElementById(x)) {
+              t.async = 1;
+              t.defer = true;
+              t.src = a;
+              t.id = x;
+              t.onload = function(){
+                !(function (t, f, a, x) {
+                  if (!document.getElementById(x)) {
+                    t.async = 1;
+                    t.defer = true;
+                    t.src = a;
+                    t.id = x;
+                    t.onload = execCactusEvents('digitain');
+                    f.parentNode.insertBefore(t, f);
+                  }
+                })(
+                  document.createElement("script"),
+                  document.getElementsByTagName("script")[0],
+                  digitain + "/js/partner/bootstrapper.min.js",
+                  "digitain_script_bootstraper"
+                );
+              }
+              f.parentNode.insertBefore(t, f);
+            }
+          })(
+            document.createElement("script"),
+            document.getElementsByTagName("script")[0],
+            digitain + "/js/partner/IntegrationLoader.min.js",
+            "digitain_script"
+          );
+        }, DEFER_TO_LOAD);
+
+        // antillephone
+        setTimeout(function () {
+          if (app.toLowerCase() === 'bet7k') {
+            !(function (t, f, a, x) {
+              if (!document.getElementById(x)) {
+                t.async = 1;
+                t.defer = true;
+                t.src = a;
+                t.onload = execCactusEvents('antillephone');
+                t.id = x;
+                f.parentNode.insertBefore(t, f);
+              }
+            })(
+              document.createElement("script"),
+              document.getElementsByTagName("script")[0],
+              'https://1ce6cd54-08c8-468b-9549-7a6e538ccd8d.snippet.antillephone.com/apg-seal.js',
+              "antillephone-script"
+            );
+          }
+        }, DEFER_TO_LOAD);
+
+        setTimeout(function () {
+          if (app.toLowerCase() === 'apostaonline') {
+            !(function (t, f, a, x) {
+              if (!document.getElementById(x)) {
+                t.async = 1;
+                t.defer = true;
+                t.src = a;
+                t.onload = execCactusEvents('antillephone');
+                t.id = x;
+                f.parentNode.insertBefore(t, f);
+              }
+            })(
+              document.createElement("script"),
+              document.getElementsByTagName("script")[0],
+              'https://7a7d1195-73c8-4612-a93d-ad5e06d7fcca.snippet.antillephone.com/apg-seal.js',
+              "antillephone-script"
+            );
+          }
+        }, DEFER_TO_LOAD);        
+
+        // Anjseal Licence
+        setTimeout(function () {
+          if (app.toLowerCase() === 'brisabet') {
+            !(function (t, f, a, x) {
+              if (!document.getElementById(x)) {
+                t.async = 1;
+                t.defer = true;
+                t.src = a;
+                t.id = x;
+                t.onload = execCactusEvents('anjseal');
+                f.parentNode.insertBefore(t, f);
+              }
+            })(
+              document.createElement("script"),
+              document.getElementsByTagName("script")[0],
+              "https://867df01d-b8a5-4696-a808-83c536b1f3d6.snippet.anjouangaming.org/anj-seal.js?nocache=1",
+              "anjseal-script"
+            );
+          }
+        }, DEFER_TO_LOAD);
+
+        // setTimeout(function () {
+        //   if (app === 'PALPIBET') {
+        //     window.fcWidgetMessengerConfig = {
+        //       tags: ["palpibet"]
+        //     }
+        //     !(function (t, f, a, x) {
+        //       if (!document.getElementById(x)) {
+        //         t.async = 1;
+        //         t.defer = true;
+        //         t.src = a;
+        //         t.id = x;
+        //         f.parentNode.insertBefore(t, f);
+        //       }
+        //     })(
+        //       document.createElement("script"),
+        //       document.getElementsByTagName("script")[0],
+        //       '//eu.fw-cdn.com/12422744/488848.js',
+        //       "custom-fw-cdn-12422744-script"
+        //     );
+        //   }
+        // }, DEFER_TO_LOAD);
+      },400);
+  }
+  window.onload = start;
+  setTimeout(start,1500);
+})(document.currentScript);
